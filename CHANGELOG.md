@@ -2,10 +2,28 @@
 
 All notable changes to this project are documented here.
 
+# Release 1.1.0 (13/11/2022):  Compatibility update
+
+## What's new ?
+This release extends the supported vscode versions, such that any version > v1.52 is supported.
+
+
+## Full explanations
+
+### Features
+
+
+ * The extension now supports vscode versions from v1.52
+ * Updated logo
+
+
+---
+
 # Release 1.0.0 (13/11/2022):  First release!
 
 ## What's new ?
 This release allows you to have a live display of your coding style errors, directly inside VsCode.
+
 
 
 ## Full explanations
