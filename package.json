@@ -4,11 +4,11 @@
     "repository": "https://github.com/Quentin-Desmettre/EpiLinter",
     "displayName": "EpiLinter - Epitech Coding Style",
     "description": "An extension to efficiently display your coding style errors.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "engines": {
-        "vscode": "^1.62.0"
+        "vscode": "^1.52.0"
     },
-    "icon": "image/logo-old.png",
+    "icon": "image/logo.png",
     "categories": [
         "Other"
     ],
@@ -21,7 +21,7 @@
         "@types/glob": "^8.0.0",
         "@types/mocha": "^10.0.0",
         "@types/node": "16.x",
-        "@types/vscode": "^1.62.0",
+        "@types/vscode": "^1.52.0",
         "@vscode/test-electron": "^2.1.5",
         "esbuild": "^0.15.13",
         "eslint": "^8.24.0",
