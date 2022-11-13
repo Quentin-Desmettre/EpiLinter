@@ -64,16 +64,23 @@ def gen_changelog_for_commits(commits, release, release_commit_message, release_
     if len(getBodyForCommitHash(release_commit_hash)) > 1:
         changelog_to_merge += getBodyForCommitHash(release_commit_hash)
         changelog_to_merge += "\n\n## Full explanations\n\n"
+    base_changelog = changelog_to_merge
     category_is_empty = True
+    commits_added = 0
     for commit_type in COMMIT_TYPES:
         to_add = "### {}\n\n\n".format(COMMIT_TYPES[commit_type])
         for commit in commits:
             if commit.startswith(commit_type):
                 category_is_empty = False
                 to_add += " *{}\n".format(commit.split(":")[1])
+                commits_added += 1
         if not category_is_empty:
             changelog_to_merge += to_add + "\n"
         category_is_empty = True
+    if commits_added == 0:
+        base_changelog += "\n---\n"
+        return base_changelog
+
     changelog_to_merge += "\n---\n"
     return changelog_to_merge
 
