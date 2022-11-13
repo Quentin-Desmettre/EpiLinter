@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+# Release 1.2.1 (13/11/2022):  License update
+
+## What's new ?
+This release updates the license (from GNU to MIT), and fixes the changelog generation when there is no visible commits in a release.
+
+
+## Full explanations
+
+### Bug fixes
+
+
+ * Fixed changelog generation when no visible commits are to be displayed
+
+
+---
+
 # Release 1.2.0 (13/11/2022):  Small improvement
 
 ## What's new ?
