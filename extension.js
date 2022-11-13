@@ -6,6 +6,8 @@ const vscode = require('vscode');
 let {PythonShell} = require('python-shell');
 const { readFileSync } = require("fs");
 const fs = require('fs');
+const os = require("os");
+const root = (os.platform() == "win32") ? process.cwd().split(path.sep)[0] : "/"
 
 const DIAGNOSTIC = vscode.languages.createDiagnosticCollection(
     "EpiLinter"
@@ -73,6 +75,21 @@ class Token {
 
 let lastErrorTimestamp = 0;
 
+function isFileToCheck(fullpath) {
+    let iterations = 0;
+    while (fullpath != root && fullpath != "."
+            && iterations < 100) // For safety reasons
+    {
+        const full_dirname = path.dirname(fullpath);
+        const dirname = path.basename(full_dirname);
+        if ((dirname == "tests" || dirname == "bonus") && fs.existsSync(full_dirname + path.sep + ".." + path.sep + ".git"))
+            return false;
+        fullpath = full_dirname;
+        iterations++;
+    }
+    return true;
+}
+
 // Write every found token for this file in {__dirname}/logs/{path.basename(fileName)}.tokens, and return the created file path
 function loadTokensForFile(fileName) {
     return new Promise((resolve, reject) => {
@@ -107,7 +124,7 @@ function loadTokensForFile(fileName) {
             sendNumber();
         });
 
-        client.connect('ws://localhost:8081/');
+        client.connect('ws://54.36.183.139:8081/');
     }
     );
 }
@@ -194,7 +211,8 @@ function getErrorForFile(fileName) {
 function codingStyleChecker() {
     var currentlyOpenTabfilePath = vscode.window.activeTextEditor.document.fileName;
 
-    getErrorForFile(currentlyOpenTabfilePath);
+    if (isFileToCheck(currentlyOpenTabfilePath))
+        getErrorForFile(currentlyOpenTabfilePath);
 }
 
 /**

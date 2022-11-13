@@ -2,10 +2,22 @@
 
 All notable changes to this project are documented here.
 
+# Release 1.2.0 (13/11/2022):  Small improvement
+
+## What's new ?
+### Features
+
+
+ * Do not check coding style if file is in a tests/ or bonus/ directory
+
+
+---
+
 # Release 1.1.0 (13/11/2022):  Compatibility update
 
 ## What's new ?
 This release extends the supported vscode versions, such that any version > v1.52 is supported.
+
 
 
 ## Full explanations
