@@ -1,0 +1,3 @@
+[submodule "EpiLinter-tokenizer"]
+	path = EpiLinter-tokenizer
+	url = git@github.com:Quentin-Desmettre/EpiLinter-tokenizer.git

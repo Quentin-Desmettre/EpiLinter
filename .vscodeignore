@@ -1,0 +1,11 @@
+EpiLinter-tokenizer/
+git_hooks/
+.gitignore
+.gitmodules
+.github/
+.vscode/
+jsconfig.json
+setup.sh
+messages
+out
+version.json

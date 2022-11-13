@@ -1,0 +1,11 @@
+.vscode
+node_modules
+*.vslx
+__pycache__
+messages
+out
+version.json
+!.vscode/launch.json
+logs.log
+tokens.txt
+commit
