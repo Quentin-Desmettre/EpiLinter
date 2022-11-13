@@ -1,8 +1,8 @@
 const fs = require('fs');
 const { exit } = require('process');
 
-var package_json = require('./package.json'); //(with path)
-var version_json = require("./version.json")
+var package_json = require('../package.json'); //(with path)
+var version_json = require("../version.json")
 package_json.version = version_json.version
 
 
