@@ -27,8 +27,8 @@ jobs:
         run: |
           echo "${{ github.event.pull_request.title }}" > pr_msg
           echo "${{ github.event.pull_request.body }}" > pr_body
-          python genChangelog.py > CHANGELOG.md
-          node updateVersion.js
+          python workflow_scripts/genChangelog.py > CHANGELOG.md
+          node workflow_scripts/updateVersion.js
 
       - name: Push changes
         uses: stefanzweifel/git-auto-commit-action@v4
