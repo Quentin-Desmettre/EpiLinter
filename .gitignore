@@ -9,5 +9,3 @@ version.json
 logs.log
 tokens.txt
 commit
-pr_body
-pr_msg

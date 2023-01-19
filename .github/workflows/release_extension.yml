@@ -1,0 +1,55 @@
+name: "Publish new version"
+on:
+  push:
+    branches:
+      - main
+jobs:
+  # check:
+  #   name: "Check publish necessity"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         ref: ${{ github.event.pull_request.head.sha }}
+  #         fetch-depth: 0
+  #     - name: Check publish necessity
+  #       run: |
+  #         (git log -n 1 --format="%s" > commit) && (grep major commit || grep minor commit || grep patch commit)
+
+  deploy:
+    name: "Publish the new version"
+    runs-on: ubuntu-latest
+    needs: [check]
+    steps:
+      # - uses: actions/checkout@v2
+      #   with:
+      #     ref: ${{ github.event.pull_request.head.sha }}
+      #     fetch-depth: 0
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install the dependencies
+        run: npm i && sudo apt install nodejs
+
+      - name: Install vsce
+        run: npm i -g vsce
+
+      # - name: Generate CHANGELOG
+      #   run: |
+      #     python workflow_scripts/genChangelog.py > CHANGELOG.md
+      #     python workflow_scripts/genChangelog.py >> README.md
+      #     node workflow_scripts/updateVersion.js
+
+      # - name: Pre-publish
+      #   run: |
+      #     git config --global user.email "quentin.desmettre@epitech.eu"
+      #     git config --global user.name "Quentin-Desmettre"
+      #     git add . && git commit -m "chore: Publishing extension"
+
+
+      - name: Publish
+        run: |
+          vsce publish -p ${{ secrets.PUBLISHER_KEY }}
