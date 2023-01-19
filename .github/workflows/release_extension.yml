@@ -4,17 +4,13 @@ on:
     branches:
       - main
 jobs:
-  # check:
-  #   name: "Check publish necessity"
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         ref: ${{ github.event.pull_request.head.sha }}
-  #         fetch-depth: 0
-  #     - name: Check publish necessity
-  #       run: |
-  #         (git log -n 1 --format="%s" > commit) && (grep major commit || grep minor commit || grep patch commit)
+  check:
+    name: "Run tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        run: |
+          (cd tests && ./runTests) || true
 
   deploy:
     name: "Publish the new version"
