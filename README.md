@@ -19,3 +19,27 @@ Please ask us [here!](https://github.com/Epitech/coding-style-checker/issues/new
 
 ## You want to improve this project ?
 Simply [fork the repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo), make your changes, and open a pull request to the `main` branch.
+# Changelog
+
+All notable changes to this project are documented here.
+
+# Release 1.0.0 (06/11/2022):  First release!
+
+## What's new ?
+This update releases the first version of this extension.
+With this release, you will be able to view the errors that Banana shows, *directly* into VsCode !
+
+
+## Full explanations
+
+### Features
+
+
+ * Setup repository README, LICENSE, .ingore files and hook setup
+ * Extension reports errors in VsCode editor
+ * Added tokenizer submodule
+ * Automatically update the extension when pushing to main branch
+
+
+---
+

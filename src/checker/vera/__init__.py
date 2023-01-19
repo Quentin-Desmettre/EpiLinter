@@ -150,6 +150,8 @@ def loadTokens(rawTokens, fileName):
             tokens[fields[3]].append(new_token)
         # else:
         #     raise BaseException(fields)
+    if "eof" not in tokens:
+        tokens["eof"] = []
     tokens["eof"].append(Token(None, 0, getLineCount(fileName), "eof", fileName))
     tokens_for_file[fileName] = tokens
 
