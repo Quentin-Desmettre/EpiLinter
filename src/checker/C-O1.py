@@ -68,19 +68,40 @@ _UNWANTED_FILES_REGEXES = [
     re.compile(r'.*#.*'),
 
     # Valgrind core dump files
-    re.compile(r'^vgcore\.\d+$'),
-
-    # ;)
-    re.compile(r'^NormEZ\.rb$', flags=re.IGNORECASE)
+    re.compile(r'^vgcore\.\d+$')
 ]
+
+_UNWANTED_BINARY_MAGIC = [
+    # ELF
+    b'\x7fELF',
+
+    # EXE
+    b'MZ',
+
+    # Mach-O
+    b'\xfe\xed\xfa\xce',
+
+    # PE
+    b'\x4d\x5a',
+]
+
+
+def is_unwanted_binary(file: str) -> bool:
+    with open(file, 'rb') as f:
+        first_line = f.readline()
+        return any(first_line.startswith(magic) for magic in _UNWANTED_BINARY_MAGIC)
 
 
 def check_delivery_files():
     for file in vera.getSourceFileNames():
+        if is_unwanted_binary(file):
+            vera.report(vera.Token(" ", 0, 1, "O1", file), "MAJOR:C-O1")
+            continue
         file_name = get_filename(file)
         for regex in _UNWANTED_FILES_REGEXES:
             if regex.match(file_name):
                 vera.report(vera.Token(" ", 0, 1, "O1", file), "MAJOR:C-O1")
+                break
 
 
 check_delivery_files()

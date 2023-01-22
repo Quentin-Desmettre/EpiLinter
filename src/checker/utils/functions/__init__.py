@@ -1,10 +1,11 @@
+from typing import List
+
 import vera
 import re
+from utils import get_lines
 from .function import Function
 from .section import Section
 from .utils import remove_attributes, get_column
-from utils import get_lines
-from typing import List
 
 RESERVED_KEYWORDS = [
     "break",
@@ -13,7 +14,6 @@ RESERVED_KEYWORDS = [
     "default",
     "do",
     "else",
-    "extern",
     "for",
     "goto",
     "if",
@@ -28,10 +28,11 @@ FUNCTION_REGEX = re.compile(
     r"(?P<beforeFunction>(^|#.+|(?<=[;}{]))([\n\s*/]*(^|(?<=[\n\s{};]))))"
     r"(?P<func>"
     r"(?P<type>((?!" + r"\W|".join(RESERVED_KEYWORDS) + r"\W)\w+[\w\s\n*,]*|(\w+[\s\t\n*]+)\(\*.*\)\(.*\))[\s\n*]+)"
-    r"(?P<name>(?<=[\n\s*])\w+)[\s\n]*\([\n\s]*"
-    r"(?P<args>[^;{]*)[\n\s]*\)[\s\n]*"
-    r"(?P<functionStartChar>[;{]{1}))"
+                                                        r"(?P<name>(?<=[\n\s*])\w+)[\s\n]*\([\n\s]*"
+                                                        r"(?P<args>[^;{]*)[\n\s]*\)[\s\n]*"
+                                                        r"(?P<functionStartChar>[;{]{1}))"
 )
+
 
 def __get_function_body(file: str, function_start_index: int):
     all_lines = get_lines(file, replace_comments=True)
@@ -56,26 +57,19 @@ def __get_function_body(file: str, function_start_index: int):
             end_column_number = token.column
             break
     function_lines = all_lines[line_number - 1:end_line_number]
-    try:
-        function_lines[0] = function_lines[0][column_number:]
-    except:
-        print("line number:", line_number - 1)
-        print("end line number:", end_line_number)
-        print("len:", len(all_lines))
-        print("queried:", 0)
-        print("column:", column_number)
-        exit(0)
-    function_lines[-1] = function_lines[-1][:end_column_number+1]
+    function_lines[0] = function_lines[0][column_number:]
+    function_lines[-1] = function_lines[-1][:end_column_number + 1]
     raw = '\n'.join(function_lines)
     return Section(
-        start = function_start_index,
-        end = function_start_index + len(raw),
-        line_start = line_number,
-        line_end = end_line_number,
-        column_start = column_number,
-        column_end = end_column_number,
-        raw = raw
+        start=function_start_index,
+        end=function_start_index + len(raw),
+        line_start=line_number,
+        line_end=end_line_number,
+        column_start=column_number,
+        column_end=end_column_number,
+        raw=raw
     )
+
 
 def __get_arguments_from_string(arguments_string: str):
     arguments_parts_array = arguments_string.split(',')
@@ -90,6 +84,7 @@ def __get_arguments_from_string(arguments_string: str):
             arguments.append(argument)
             argument = ""
     return arguments
+
 
 def get_functions(file: str) -> List[Function]:
     raw = '\n'.join(get_lines(file, replace_comments=True, replace_stringlits=True))
@@ -110,19 +105,19 @@ def get_functions(file: str) -> List[Function]:
         proto_end_column = get_column(raw, proto_end_line, match.end() - 1)
         prototype_raw = raw_match[:match.end() - 1]
         functions.append(Function(
-            prototype = Section(
-                start = match_start,
-                end = match.end() - 1,
-                line_start = proto_start_line,
-                line_end = proto_end_line,
-                column_start = proto_start_column,
-                column_end = proto_end_column,
-                raw = prototype_raw
+            prototype=Section(
+                start=match_start,
+                end=match.end() - 1,
+                line_start=proto_start_line,
+                line_end=proto_end_line,
+                column_start=proto_start_column,
+                column_end=proto_end_column,
+                raw=prototype_raw
             ),
-            body = function_body,
-            raw = prototype_raw + (function_body.raw if function_body else ""),
-            return_type = match.group("type"),
-            name = match.group("name"),
-            arguments = __get_arguments_from_string(match.group("args")),
+            body=function_body,
+            raw=prototype_raw + (function_body.raw if function_body else ""),
+            return_type=match.group("type"),
+            name=match.group("name"),
+            arguments=__get_arguments_from_string(match.group("args")),
         ))
     return functions
