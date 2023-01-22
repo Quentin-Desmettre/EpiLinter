@@ -1,11 +1,13 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-let path = require("path");
 var WebSocketClient = require('websocket').client;
 const vscode = require('vscode');
 let {PythonShell} = require('python-shell');
-const { readFileSync } = require("fs");
 const fs = require('fs');
+const minimatch = require('minimatch');
+const execSync = require('child_process').execSync;
+const path = require('path');
+const { execPath } = require('process');
 
 const DIAGNOSTIC = vscode.languages.createDiagnosticCollection(
     "EpiLinter"
@@ -101,7 +103,14 @@ function loadTokensForFile(fileName) {
 
             function sendNumber() {
                 if (connection.connected) {
-                    connection.sendUTF(readFileSync(fileName) + "\n");
+                    let content = null;
+                    try {
+                        content = fs.readFileSync(fileName);
+                    } catch {
+                        reject("error");
+                    }
+                    if (content)
+                        connection.sendUTF(content + "\n");
                 }
             }
             sendNumber();
@@ -128,43 +137,20 @@ function getLoggedErrorsAsTokens() {
 /**
  * Return a list of Token, each describing an error (error code, line, column, width)
  */
-function getErrorForFile(fileName) {
+function getErrorForFile(fileName, fileUri) {
     // Get tokens for this file
     loadTokensForFile(fileName).then(message => {
         // Call python script for this file, giving as argument the tokens as a raw string
         const tokens_txt = EPILINTER_DIR + "/tokens.txt";
         fs.writeFileSync(tokens_txt, message);
-        PythonShell.run(EPILINTER_DIR+"/src/checker/runner.py",
-            {args: [
-               tokens_txt, fileName,
-               "C-A3",
-               "C-C1",
-               "C-C3",
-               "C-F2",
-               "C-F3",
-               "C-F4",
-               "C-F5",
-               "C-F6",
-               "C-F8",
-               "C-F9",
-               "C-G1",
-               "C-G2",
-               "C-G3",
-               "C-G4",
-               "C-G5",
-               "C-G6",
-               "C-G7",
-               "C-G8",
-               "C-H1",
-               "C-H2",
-               "C-L2",
-               "C-L3",
-               "C-L4",
-               "C-O1",
-               "C-O3",
-               "C-O4",
-               "C-V1"
-            ]},
+        PythonShell.run(
+            // Script
+            EPILINTER_DIR+"/src/checker/runner.py",
+
+            // Args
+            {args: [tokens_txt, fileName]},
+
+            // Function when finished
             async function (err, results) {
                 if (err) {
                     vscode.window.showErrorMessage("An error occured while EpiLinter parsed this file.\nMessage:" + err.message);
@@ -184,25 +170,112 @@ function getErrorForFile(fileName) {
                     d.source = "EpiLinter";
                     diagnostics.push(d);
                 }
-                DIAGNOSTIC.clear();
-                DIAGNOSTIC.set((await vscode.workspace.openTextDocument(fileName)).uri, diagnostics);
+                DIAGNOSTIC.set(fileUri, diagnostics);
             }
         );
     });
 }
 
+function isFileTrackedByGit(fileName, current_dir)
+{
+    let tracked_files = [];
+    try {
+        tracked_files = execSync(`cd ${current_dir} && git ls-files`).toString().split("\n");
+    } catch {
+        return false;
+    }
+    for (let file of tracked_files) {
+        if (file === fileName)
+            return true;
+    }
+    return false;
+}
+
+function getAllSubPathsForFile(fileName, current_dir)
+{
+    const basename = path.basename(fileName);
+    // Get all directories
+    const directories = (fileName.slice(0, -basename.length)).replaceAll("\\", "/").split("/").filter(x => x !== "");
+
+    // Get all paths
+    let paths = [basename];
+    let current_path = basename;
+
+    for (let i = directories.length - 1; i >= 0; i--) {
+        if (directories[i] == path.basename(current_dir)) {
+            current_path = "/" + current_path;
+            paths.push(current_path);
+            break;
+        }
+        current_path = directories[i] + (directories[i].endsWith("/") ? "" : "/") + current_path;
+        paths.push(current_path);
+    }
+    return paths;
+}
+
+/**
+ * Return true if the file should be linted, false otherwise.
+ * The file should not be linted if:
+ *      - it is in the ignore list and is not tracked by git
+ *      - If it is in a /bonus/ or a /tests/ folder
+ */
+function isFileToBeLinted(fileName, ignore_patterns)
+{
+    const current_dir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    const bonus_folder = current_dir + (current_dir.endsWith("/") ? "" : "/") + "bonus";
+    const test_folder = current_dir + (current_dir.endsWith("/") ? "" : "/") + "tests";
+
+    for (let pattern of ignore_patterns) {
+        let subPaths = getAllSubPathsForFile(fileName, current_dir);
+        for (let subPath of subPaths) {
+            if (minimatch.minimatch(subPath, pattern))
+                return isFileTrackedByGit(fileName, current_dir);
+        }
+    }
+    return true;
+}
+
 function codingStyleChecker() {
+    const ignore_patterns = fetchPatternsToIgnore();
     var currentlyOpenTabfilePath = vscode.window.activeTextEditor.document.fileName;
 
-    getErrorForFile(currentlyOpenTabfilePath);
+    const toLint = isFileToBeLinted(currentlyOpenTabfilePath, ignore_patterns);
+    if (toLint)
+        getErrorForFile(currentlyOpenTabfilePath, vscode.window.activeTextEditor.document.uri);
+    else
+        DIAGNOSTIC.set(vscode.window.activeTextEditor.document.uri, []);
+}
+
+function fetchPatternsToIgnore() {
+    let patterns = [];
+    const current_dir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+    const gitignore = current_dir + "/.gitignore";
+    const settings = current_dir + "/.vscode/settings.json";
+
+    // Get .gitignore patterns
+    if (fs.existsSync(gitignore)) {
+        let gitignore_patterns = fs.readFileSync(gitignore).toString().split("\n");
+        // Remove comments and empty lines
+        gitignore_patterns = gitignore_patterns.filter((line) => !line.startsWith("#"));
+        gitignore_patterns = gitignore_patterns.filter((line) => line !== "");
+        patterns = patterns.concat(gitignore_patterns);
+    }
+    // Get linter-ignore patterns
+    let config = vscode.workspace.getConfiguration("epilinter");
+    return patterns.concat(config.get('ignoreFiles'));
 }
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+    vscode.window.onDidChangeWindowState(codingStyleChecker);
+    vscode.window.onDidChangeTextEditorSelection(codingStyleChecker);
+    vscode.window.onDidChangeActiveTextEditor(codingStyleChecker);
     vscode.workspace.onDidChangeConfiguration(codingStyleChecker);
     vscode.workspace.onDidSaveTextDocument(codingStyleChecker);
+    vscode.workspace.onDidOpenTextDocument(codingStyleChecker);
+    vscode.workspace.onDidChangeTextDocument(codingStyleChecker);
     codingStyleChecker();
 }
 
