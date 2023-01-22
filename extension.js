@@ -269,8 +269,13 @@ function fetchPatternsToIgnore() {
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+    vscode.window.onDidChangeWindowState(codingStyleChecker);
+    vscode.window.onDidChangeTextEditorSelection(codingStyleChecker);
+    vscode.window.onDidChangeActiveTextEditor(codingStyleChecker);
     vscode.workspace.onDidChangeConfiguration(codingStyleChecker);
     vscode.workspace.onDidSaveTextDocument(codingStyleChecker);
+    vscode.workspace.onDidOpenTextDocument(codingStyleChecker);
+    vscode.workspace.onDidChangeTextDocument(codingStyleChecker);
     codingStyleChecker();
 }
 
@@ -281,10 +286,3 @@ module.exports = {
     activate,
     deactivate
 }
-
-/*
-
-- Run linter when user switches to a new file (instead of when user modify it)
-- Take into account bonus, tests and .gitignore and configuration
-
-*/
