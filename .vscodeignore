@@ -4,8 +4,10 @@ git_hooks/
 .gitmodules
 .github/
 .vscode/
+.git/
 jsconfig.json
 setup.sh
 messages
 out
 version.json
+tokens.txt
