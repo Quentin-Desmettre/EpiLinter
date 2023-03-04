@@ -24,8 +24,8 @@ In fact, this extension uses Banana to find and display errors - Which make this
 In order to detect your style errors and parse your code, this extension uses Docker. If Docker is not installed, EpiLinter will use its server.
 
 Using the Docker option, EpiLinter creates a Docker container on your computer, which will act as a server and listen on port 8081 by default. You can modify this behaviour by changing some parameters:
-- To change the port on which the Docker container is listening, update the `tokenizer_port` extension's worksapce parameter to a free port.
-- To force EpiLinter to use its server, update the `use_docker` extension extension's worksapce parameter to `true`. Please note that this is not the recommended way, as querying the EpiLinter server requires a network connection. Though, this may be a good option if your computer has limited place, as the Docker container will take roughly 500MB of disk space.
+- To change the port on which the Docker container is listening, update the `tokenizer_port` extension's workspace/user parameter to a free port.
+- To force EpiLinter to use its server, update the `use_docker` extension extension's workspace/user parameter to `true`. Please note that this is not the recommended way, as querying the EpiLinter server requires a network connection. Though, this may be a good option if your computer has limited place, as the Docker container will take roughly 500MB of disk space.
 
 <br>
 
@@ -50,6 +50,10 @@ Simply [fork the repo](https://docs.github.com/en/get-started/quickstart/fork-a-
 
 # **EpiLinter Changelog**
 
+## **Release 3.0.1: February 28, 2023**
+### Bug Fix
+- Removed debug information message
+
 ## **Release 3.0.0: February 28, 2023**
 ### New features
 - If docker is installed on your machine, EpiLinter now hosts the tokenizer (the tool that makes it possible to parse your code) on your computer. This behaviour can be changed through the extensio'ns parameters. Please refer to the [README.md](README.md) for more informations, section `IMPORTANT - Docker usage`.
@@ -63,7 +67,6 @@ Simply [fork the repo](https://docs.github.com/en/get-started/quickstart/fork-a-
 - Ignore files matching the patterns specified inside the extension's settings (***Settings*** &rarr; ***Search*** *epilinter* &rarr; ***Edit in settings.json***). By default, it ignores everything inside the root **bonus/** and **tests/** folders.
 ### Bug fix
 - Instead of only running the analyzer when the user modify the file, run it when the user switches file.
-
 
 ## **Release 1.1.0: January 19, 2023**
 
