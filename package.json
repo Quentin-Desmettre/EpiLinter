@@ -4,7 +4,7 @@
   "repository": "https://github.com/Quentin-Desmettre/EpiLinter",
   "displayName": "EpiLinter - Epitech Coding Style",
   "description": "An extension to efficiently display your coding style errors.",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "engines": {
     "vscode": "^1.52.0"
   },
@@ -16,7 +16,7 @@
     "onLanguage:c",
     "workspaceContains:**/*.c"
   ],
-  "main": "./extension.js",
+  "main": "./src/extension/extension.js",
   "contributes": {
     "configuration": [
       {
@@ -29,6 +29,21 @@
               "/tests/**/*"
             ],
             "description": "List of glob patterns that should not be analyzed."
+          },
+          "epilinter.tokenizer_port": {
+            "type": "number",
+            "default": 8081,
+            "description": "Port of the tokenizer. Change this setting if the port is already used by your system."
+          },
+          "epilinter.use_docker": {
+            "type": "boolean",
+            "default": true,
+            "description": "Use the docker image to run the tokenizer."
+          },
+          "epilinter.tokenizer_address": {
+            "type": "string",
+            "default": "",
+            "description": "Address of the tokenizer. Will always be overriden by the extension."
           }
         }
       }
