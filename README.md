@@ -50,6 +50,10 @@ Simply [fork the repo](https://docs.github.com/en/get-started/quickstart/fork-a-
 
 # **EpiLinter Changelog**
 
+## **Release 3.0.1: February 28, 2023**
+### Bug Fix
+- Removed debug information message
+
 ## **Release 3.0.0: February 28, 2023**
 ### New features
 - If docker is installed on your machine, EpiLinter now hosts the tokenizer (the tool that makes it possible to parse your code) on your computer. This behaviour can be changed through the extensio'ns parameters. Please refer to the [README.md](README.md) for more informations, section `IMPORTANT - Docker usage`.
@@ -63,7 +67,6 @@ Simply [fork the repo](https://docs.github.com/en/get-started/quickstart/fork-a-
 - Ignore files matching the patterns specified inside the extension's settings (***Settings*** &rarr; ***Search*** *epilinter* &rarr; ***Edit in settings.json***). By default, it ignores everything inside the root **bonus/** and **tests/** folders.
 ### Bug fix
 - Instead of only running the analyzer when the user modify the file, run it when the user switches file.
-
 
 ## **Release 1.1.0: January 19, 2023**
 

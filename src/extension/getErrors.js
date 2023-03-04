@@ -82,7 +82,6 @@ class TokenizerClient {
         let CONFIG = vscode.workspace.getConfiguration("epilinter");
 
         if (this.address != CONFIG.get('tokenizer_address')) {
-            vscode.window.showInformationMessage("Tokenizer address changed to " + CONFIG.get('tokenizer_address'));
             this.address = CONFIG.get('tokenizer_address');
             this.connection = null;
         }

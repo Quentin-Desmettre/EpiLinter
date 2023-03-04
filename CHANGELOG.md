@@ -1,5 +1,9 @@
 # **EpiLinter Changelog**
 
+## **Release 3.0.1: February 28, 2023**
+### Bug Fix
+- Removed debug information message
+
 ## **Release 3.0.0: February 28, 2023**
 ### New features
 - If docker is installed on your machine, EpiLinter now hosts the tokenizer (the tool that makes it possible to parse your code) on your computer. This behaviour can be changed through the extensio'ns parameters. Please refer to the [README.md](README.md) for more informations, section `IMPORTANT - Docker usage`.
