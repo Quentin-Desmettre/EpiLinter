@@ -126,7 +126,8 @@ exports.startTokenizer = async function() {
     }
 
     // Check if tokenizer exists
-    if (!isTokenizerPulled() && !pullDocker()) {
+    if (!isTokenizerPulled() && !(await pullDocker())) {
+        vscode.window.showErrorMessage("To fix this issue, try to run: sudo usermod -aG docker $USER && newgrp docker, then restart your computer.");
         vscode.window.showErrorMessage("An error occured while EpiLinter configured itself. Possible reason for this error may be:\n- You are not connected to the internet\n- The docker daemon is not running\n- You have not enough rights to run docker\n- You have not enough disk space to pull the image");
         return;
     }
