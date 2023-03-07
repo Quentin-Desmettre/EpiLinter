@@ -50,6 +50,10 @@ Simply [fork the repo](https://docs.github.com/en/get-started/quickstart/fork-a-
 
 # **EpiLinter Changelog**
 
+## **Release 3.0.2: February 28, 2023**
+### Bug Fix
+- Fixed error handling of Docker installation
+
 ## **Release 3.0.1: February 28, 2023**
 ### Bug Fix
 - Removed debug information message
