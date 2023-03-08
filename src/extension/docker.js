@@ -114,6 +114,8 @@ If settings change:
 
 exports.startTokenizer = async function() {
     CONFIG = vscode.workspace.getConfiguration("epilinter");
+    CONFIG.update('tokenizer_address', SERVER_ADDRESS);
+    return;
     exports.stopTokenizer();
     CONFIG.update('tokenizer_address', SERVER_ADDRESS);
     if (CONFIG.get('use_docker') === false)
