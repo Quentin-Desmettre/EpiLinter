@@ -11,6 +11,7 @@ const EXT_NAME = "epilinter";
 const EPILINTER_DIR = vscode.extensions.getExtension(PUBLISHER + "." + EXT_NAME).extensionPath;
 const TOKENS_TXT = EPILINTER_DIR + "/tokens.txt";
 const SCRIPT_SRC = EPILINTER_DIR+"/src/checker/runner.py";
+const SERVER_ADDRESS = "ws://54.36.183.139:8081";
 
 
 exports.DIAGNOSTIC = vscode.languages.createDiagnosticCollection(
@@ -41,11 +42,10 @@ class Token {
 
 class TokenizerClient {
     constructor() {
-        let CONFIG = vscode.workspace.getConfiguration("epilinter");
 
         this.client = new WebSocketClient();
         this.connection = null;
-        this.address = CONFIG.get('tokenizer_address');
+        this.address = SERVER_ADDRESS;
         this.client.on('connect', (connection) => {
             this.connection = connection;
         });
@@ -79,12 +79,6 @@ class TokenizerClient {
      * @returns {Promise} A promise that will be resolved when the server sends a response, or in case of an error.
      */
     send(content) {
-        let CONFIG = vscode.workspace.getConfiguration("epilinter");
-
-        if (this.address != CONFIG.get('tokenizer_address')) {
-            this.address = CONFIG.get('tokenizer_address');
-            this.connection = null;
-        }
         this.client.removeAllListeners();
         return new Promise((resolve, reject) => {
             if (!this.connection) {
@@ -193,4 +187,3 @@ exports.parseErrorForFile = (fileName, fileUri) => {
             handleErrorMessage(error);
         });
 }
-
