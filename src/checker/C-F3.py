@@ -12,12 +12,15 @@ def check_line_length():
             continue
 
         for line_number, line in enumerate(get_lines(file), start=1):
+            line = line.strip('\n')
             count = 0
             for character in line:
                 if character == '\t':
                     count = (count + TAB_MAX_LENGTH) - (count % TAB_MAX_LENGTH)
                 else:
                     count += 1
+            # Always count the newline character
+            count += 1
             if count > LINE_MAX_LENGTH:
                 vera.report(vera.Token(line, 0, line_number, "F3", file), "MAJOR:C-F3")
 

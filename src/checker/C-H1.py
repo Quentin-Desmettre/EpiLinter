@@ -1,33 +1,6 @@
-import re
-
 import vera
-from utils import is_source_file, is_header_file, get_lines
-
-
-def check_static_inline_functions():
-    for file in vera.getSourceFileNames():
-        if not is_source_file(file) and not is_header_file(file):
-            continue
-        s = ""
-        for line in get_lines(file):
-            s += line
-            s += "\n"
-        p = re.compile(r"^[\t ]*(?P<modifiers>(?:(?:inline|static|unsigned|signed|short|long|volatile|struct)[\t ]+)*)"
-                       r"(?!else|typedef|return)(?P<type>\w+)\**[\t ]+\**[\t ]*\**[\t ]*(?P<name>\w+)(?P<spaces>[\t ]*)"
-                       r"\((?P<parameters>[\t ]*"
-                       r"(?:(void|(\w+\**[\t ]+\**[\t ]*\**\w+[\t ]*(,[\t \n]*)?))+|)[\t ]*)\)[\t ]*"
-                       r"(?P<endline>;\n|\n?{*\n){1}", re.MULTILINE)
-        for search in p.finditer(s):
-            line_start = s.count('\n', 0, search.start()) + 1
-            if is_source_file(file):
-                if search.group('endline') and search.group('modifiers'):
-                    is_static_inline = 'static' in search.group('modifiers') and 'inline' in search.group('modifiers')
-                    if is_static_inline and is_source_file(file):
-                        vera.report(file, line_start, "MAJOR:C-H1")
-            elif is_header_file(file) and search.group('endline') and '{' in search.group('endline') \
-                    and 'static' not in search.group('modifiers') and 'inline' not in search.group('modifiers'):
-                vera.report(file, line_start, "MAJOR:C-H1")
-
+from utils import is_source_file, is_header_file
+from utils.functions import get_functions, Function
 
 FORBIDDEN_SOURCE_FILE_DIRECTIVES = ['typedef', 'pp_define']
 
@@ -40,5 +13,38 @@ def check_forbidden_directives():
             vera.report(token, 'MAJOR:C-H1')
 
 
-check_static_inline_functions()
+def _is_function_allowed_in_source_file(function: Function) -> bool:
+    if function.body is None:
+        return False
+    if function.static and function.inline:
+        return False
+    return True
+
+
+def _is_function_allowed_in_header_file(function: Function) -> bool:
+    if function.body is None:
+        return True
+    return function.static and function.inline
+
+
+def _is_function_allowed_in_file(function: Function, file: str) -> bool:
+    if is_source_file(file):
+        return _is_function_allowed_in_source_file(function)
+    if is_header_file(file):
+        return _is_function_allowed_in_header_file(function)
+    return False
+
+
+def check_functions():
+    for file in vera.getSourceFileNames():
+        if not is_source_file(file) and not is_header_file(file):
+            continue
+        functions = get_functions(file)
+        for function in functions:
+            if not _is_function_allowed_in_file(function, file):
+                # vera.report(file, function.prototype.line_start, "MAJOR:C-H1")
+                vera.report(vera.Token(function.prototype.raw, function.prototype.column_start, function.prototype.line_start, "H1"), "MAJOR:C-H1")
+
+
 check_forbidden_directives()
+check_functions()

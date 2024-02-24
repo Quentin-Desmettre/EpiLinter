@@ -1,6 +1,18 @@
+import itertools
 import vera
+
 from utils import is_source_file, is_header_file
-from utils.functions import get_functions
+from utils.functions import get_functions_legacy, Function
+
+
+def is_nested_function(parent: Function, child: Function):
+    if parent.body is None or child.prototype is None:
+        return False
+
+    return (
+        parent.body.line_start <= child.prototype.line_start
+        and parent.body.line_end >= child.prototype.line_end
+    )
 
 
 def check_nested_functions():
@@ -8,17 +20,15 @@ def check_nested_functions():
         if not is_source_file(file) and not is_header_file(file):
             continue
 
-        functions = get_functions(file)
-        for id_a, function_a in enumerate(functions):
-            if function_a.body is None:
-                continue
-            for id_b, function_b in enumerate(functions):
-                if function_b.prototype is None:
-                    continue
-                if id_a == id_b:
-                    continue
-                if function_a.body.line_start <= function_b.prototype.line_start and function_a.body.line_end >= function_b.prototype.line_end:
-                    vera.report(file, function_b.prototype.line_start, "MAJOR:C-F9")
+        functions = get_functions_legacy(file)
+
+        for fa, fb in itertools.combinations(functions, r=2):
+            if is_nested_function(fa, fb):
+                # vera.report(file, fb.prototype.line_start, "MAJOR:C-F9")
+                vera.report(vera.Token(fb.prototype.raw, fb.prototype.column_start, fb.prototype.line_start, "F9", file), "MAJOR:C-F9")
+            elif is_nested_function(fb, fa):
+                # vera.report(file, fa.prototype.line_start, "MAJOR:C-F9")
+                vera.report(vera.Token(fa.prototype.raw, fa.prototype.column_start, fa.prototype.line_start, "F9", file), "MAJOR:C-F9")
 
 
 check_nested_functions()

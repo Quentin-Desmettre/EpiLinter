@@ -11,7 +11,7 @@ const EXT_NAME = "epilinter";
 const EPILINTER_DIR = vscode.extensions.getExtension(PUBLISHER + "." + EXT_NAME).extensionPath;
 const TOKENS_TXT = EPILINTER_DIR + "/tokens.txt";
 const SCRIPT_SRC = EPILINTER_DIR+"/src/checker/runner.py";
-const SERVER_ADDRESS = "ws://54.36.183.139:8081";
+const SERVER_ADDRESS = "ws://85.31.239.149:8081";
 
 
 exports.DIAGNOSTIC = vscode.languages.createDiagnosticCollection(
