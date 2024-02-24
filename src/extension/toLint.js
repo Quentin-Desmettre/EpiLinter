@@ -53,8 +53,9 @@ exports.isFileToBeLinted = (fileName, ignore_patterns) => {
     for (let pattern of ignore_patterns) {
         let subPaths = getAllSubPathsForFile(fileName, current_dir);
         for (let subPath of subPaths) {
-            if (minimatch.minimatch(subPath, pattern))
+            if (minimatch.minimatch(subPath, pattern)) {
                 return isFileTrackedByGit(fileName, current_dir);
+            }
         }
     }
     return true;
@@ -68,13 +69,13 @@ exports.fetchPatternsToIgnore = () => {
     const settings = current_dir + "/.vscode/settings.json";
 
     // Get .gitignore patterns
-    if (fs.existsSync(gitignore)) {
-        let gitignore_patterns = fs.readFileSync(gitignore).toString().split("\n");
-        // Remove comments and empty lines
-        gitignore_patterns = gitignore_patterns.filter((line) => !line.startsWith("#"));
-        gitignore_patterns = gitignore_patterns.filter((line) => line !== "");
-        patterns = patterns.concat(gitignore_patterns);
-    }
+    // if (fs.existsSync(gitignore)) {
+    //     let gitignore_patterns = fs.readFileSync(gitignore).toString().split("\n");
+    //     // Remove comments and empty lines
+    //     gitignore_patterns = gitignore_patterns.filter((line) => !line.startsWith("#"));
+    //     gitignore_patterns = gitignore_patterns.filter((line) => line !== "");
+    //     patterns = patterns.concat(gitignore_patterns);
+    // }
     // Get linter-ignore patterns
     return patterns.concat(CONFIG.get('ignoreFiles'));
 }

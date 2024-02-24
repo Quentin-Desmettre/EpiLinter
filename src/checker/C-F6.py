@@ -12,7 +12,7 @@ def check_no_empty_parameters_list():
 
         functions = get_functions(file)
         for function in functions:
-            if len(function.arguments) == 0:
+            if function.arguments is None:
                 vera.report(vera.Token(function.prototype.raw[function.prototype.raw.index('('):], function.prototype.raw.index('('), function.prototype.line_start, "F6", file), "MAJOR:C-F6")
 
 

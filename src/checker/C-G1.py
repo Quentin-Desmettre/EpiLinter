@@ -5,7 +5,7 @@ from utils import is_source_file, is_header_file, is_makefile, get_lines
 
 MAKEFILE_HEADER_REGEX = re.compile(
     r'^##\n'
-    r'## EPITECH PROJECT, [0-9]{4}\n'
+    r'## EPITECH PROJECT, [1-9][0-9]{3}\n'
     r'## \S.+\n'
     r'## File description:\n'
     r'(## .*\n)+'
@@ -13,7 +13,7 @@ MAKEFILE_HEADER_REGEX = re.compile(
 
 C_HEADER_REGEX = re.compile(
     r'^/\*\n'
-    r'\*\* EPITECH PROJECT, [0-9]{4}\n'
+    r'\*\* EPITECH PROJECT, [1-9][0-9]{3}\n'
     r'\*\* \S.+\n'
     r'\*\* File description:\n'
     r'(\*\* .*\n)+'

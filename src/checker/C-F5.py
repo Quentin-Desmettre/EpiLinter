@@ -16,9 +16,9 @@ def check_function_arguments():
 
         functions = get_functions(file)
         for function in functions:
-            if len(function.arguments) > MAX_ARGS_COUNT:
-                for i in range(MAX_ARGS_COUNT, len(function.arguments)):
-                    vera.report(vera.Token(function.arguments[i], function.prototype.column_start + function.raw.index(function.arguments[i]), function.prototype.line_start + lineOfArg(function.prototype.raw, function.arguments[i]), "F5", file), "MAJOR:C-F5")
-
+            arguments_count = function.get_arguments_count()
+            if arguments_count > MAX_ARGS_COUNT:
+                for _ in range(arguments_count - MAX_ARGS_COUNT):
+                    vera.report(vera.Token(function.name, 0, function.prototype.line_start, "F5", file), "MAJOR:C-F5")
 
 check_function_arguments()

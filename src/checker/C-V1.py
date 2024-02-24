@@ -1,3 +1,4 @@
+import io
 import re
 
 import vera
@@ -29,6 +30,7 @@ ALLOWED_TYPES = [
     "sfMicroseconds",
     "sfMilliseconds",
     "sfMouse",
+    "sfMouseButtonEvent",
     "sfMusic",
     "sfMutex",
     "sfRectangleShape",
@@ -150,25 +152,80 @@ ALLOWED_TYPES = [
     "WINDOW"
 ]
 
+_MODIFIERS = (
+    "inline",
+    "static",
+    "unsigned",
+    "signed",
+    "short",
+    "long",
+    "volatile",
+    "struct",
+)
+
+_MODIFIERS_REGEX = '|'.join(_MODIFIERS)
+FUNCTION_PROTOTYPE_REGEX = (
+    fr"^[\t ]*(?P<modifiers>(?:(?:{_MODIFIERS_REGEX})[\t ]+)*)"
+    r"(?!else|typedef|return)(?P<type>\w+)\**[\t ]+\**[\t ]*\**[\t ]*"
+    r"(?P<name>\w+)(?P<spaces>[\t ]*)"
+    r"\((?P<parameters>[\t ]*"
+    r"(?:(void|(\w+\**[\t ]+\**[\t ]*\**\w+[\t ]*(,[\t \n]*)?))+|)[\t ]*)\)"
+    r"[\t ]*"
+    r"(?P<endline>;\n|\n?{*\n){1}"
+)
+
+def _get_lines_without_comments(filepath: str) -> str:
+    buf = io.StringIO()
+
+    for line in get_lines(filepath, replace_comments=True):
+        buf.write(line)
+        buf.write('\n')
+
+    return buf.getvalue()
+
 
 def check_function_return_type():
     for file in vera.getSourceFileNames():
         if not is_source_file(file) and not is_header_file(file):
             continue
-        s = ""
-        for line in get_lines(file):
-            s += line
-            s += "\n"
-        p = re.compile(r"^[\t ]*(?P<modifiers>(?:(?:inline|static|unsigned|signed|short|long|volatile|struct)[\t ]+)*)"
-                       r"(?!else|typedef|return)(?P<type>\w+)\**[\t ]+\**[\t ]*\**[\t ]*(?P<name>\w+)(?P<spaces>[\t ]*)"
-                       r"\((?P<parameters>[\t ]*"
-                       r"(?:(void|(\w+\**[\t ]+\**[\t ]*\**\w+[\t ]*(,[\t \n]*)?))+|)[\t ]*)\)[\t ]*"
-                       r"(?P<endline>;\n|\n?{*\n){1}", re.MULTILINE)
+
+        s = _get_lines_without_comments(file)
+        p = re.compile(FUNCTION_PROTOTYPE_REGEX, re.MULTILINE)
         for search in p.finditer(s):
             line_start = s.count('\n', 0, search.start()) + 1
-            if search.group('type') and not re.match("^[a-z][a-z0-9_]*$", search.group('type')) \
-                    and search.group('type') not in ALLOWED_TYPES:
-                vera.report(vera.Token(" ", 0, line_start, "V1", file), "MINOR:C-V1")
+            if (
+                search.group('type')
+                and not re.match("^[a-z][a-z0-9_]*$", search.group('type'))
+                and search.group('type') not in ALLOWED_TYPES
+            ):
+                # vera.report(file, line_start, "MINOR:C-V1")
+                vera.report(vera.Token(search.group(), search.start(), line_start, "V1", file), "MINOR:C-V1")
 
+
+def check_macro_names():
+    for file in vera.getSourceFileNames():
+        if not is_source_file(file) and not is_header_file(file):
+            continue
+
+        defines = vera.getTokens(file, 1, 0, -1, -1, ["pp_define"])
+
+        for df in defines:
+            line = vera.getLine(file, df.line)
+            index = line.find("define")
+
+            if index == -1:
+                continue
+
+            cut = line[index + len("define"):].lstrip()
+            end_cut = min(map(cut.find, " \t\n("))
+
+            if end_cut == -1:
+                macro_name = cut.strip()
+            else:
+                macro_name = cut[:end_cut].strip()
+            if not re.match(r"[A-Z_$]([$A-Z_0-9]+)", macro_name):
+                # vera.report(file, df.line, "MINOR:C-V1")
+                vera.report(df, "MINOR:C-V1")
 
 check_function_return_type()
+check_macro_names()

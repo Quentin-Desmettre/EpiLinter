@@ -6,7 +6,12 @@ def get_column(raw: str, line_number: int, index: int):
     if line_number == 1:
         last_newline_index = 0
     else:
-        last_newline_index = raw[:index].rindex('\n') + 1
+        if index >= len(raw):
+            index = len(raw) - 1
+        if raw[index] == '\n':
+            last_newline_index = index
+        else:
+            last_newline_index = raw[:index].rindex('\n') + 1
     return index - last_newline_index
 
 def remove_attributes(raw: str, keep_char_count: bool = True):

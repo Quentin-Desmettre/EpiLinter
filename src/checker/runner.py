@@ -13,14 +13,17 @@ vera.setSourceFileNames([sys.argv[2]])
 modules = [
     "C-A3",
     "C-C1",
+    "C-C2",
     "C-C3",
     "C-F2",
     "C-F3",
     "C-F4",
     "C-F5",
     "C-F6",
+    "C-F7",
     "C-F8",
     "C-F9",
+    "C-G10",
     "C-G1",
     "C-G2",
     "C-G3",
@@ -31,13 +34,18 @@ modules = [
     "C-G8",
     "C-H1",
     "C-H2",
+    "C-H3",
+    "C-L1",
     "C-L2",
     "C-L3",
     "C-L4",
+    "C-L5",
+    "C-L6",
     "C-O1",
     "C-O3",
     "C-O4",
-    "C-V1"
+    "C-V1",
+    "C-V3"
 ]
 for module in modules:
     if module[-1] == '\n':
